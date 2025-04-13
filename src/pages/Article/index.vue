@@ -123,6 +123,11 @@ const snackbar = ref(false)
 const snackbarText = ref('')
 const snackbarColor = ref('success')
 
+
+function getBearerToken(rawToken: string) {
+  return `Bearer ${rawToken.replace(/"/g, '')}`;
+}
+
 const articleSchema = z.object({
   title: z.string().min(5, 'Title minimal 5 karakter'),
   description: z.string().min(10, 'Deskripsi minimal 10 karakter'),
@@ -201,7 +206,7 @@ const submitForm = async () => {
   }
   console.log('hallo bandung');
   
-  const tokenData = 'Bearer ' + JSON.parse(token)
+  const tokenData =  getBearerToken(token)
   const payload = { data: { ...form.value, category: isEditing.value ? Number(form.value.category) : form.value.category } }
 
   try {
@@ -231,7 +236,7 @@ const deleteArticle = async (id: string) => {
   if (!confirm('Yakin ingin menghapus artikel ini?')) return
   try {
     await axios.delete(`https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/articles/${id}`, {
-      headers: { Authorization: 'Bearer ' + JSON.parse(token) }
+      headers: { Authorization:  getBearerToken(token) }
     })
     articles.value = []
     page.value = 1

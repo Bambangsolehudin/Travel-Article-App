@@ -103,6 +103,9 @@
   
 
       // FUNCTION
+      function getBearerToken(rawToken: string) {
+        return `Bearer ${rawToken.replace(/"/g, '')}`;
+      }
       const showSnackbar = (message: string, color: 'success' | 'error' = 'success') => {
         snackbar.message = message
         snackbar.color = color
@@ -152,12 +155,12 @@
         try {
           if (editId.value) {
             await axios.put(`https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/categories/${editId.value}`, payload, {
-              headers: { Authorization: 'Bearer ' + JSON.parse(token) }
+              headers: { Authorization: getBearerToken(token) }
             })
             showSnackbar('Category updated successfully', 'success')
           } else {
             await axios.post('https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/categories', payload, {
-              headers: { Authorization: 'Bearer ' + JSON.parse(token) }
+              headers: { Authorization: getBearerToken(token) }
             })
             showSnackbar('Category created successfully', 'success')
           }
@@ -175,7 +178,7 @@
         isLoading.value = true;
         try {
           await axios.delete(`https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/categories/${id}`, {
-            headers: { Authorization: 'Bearer ' + JSON.parse(token) }
+            headers: { Authorization: getBearerToken(token) }
           })
           showSnackbar('Category deleted successfully', 'success')
           fetchCategories()
@@ -200,6 +203,7 @@
         deleteCategory,
         showSnackbar,
         isLoading,
+        getBearerToken
       }
     }
   })

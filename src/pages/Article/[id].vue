@@ -48,6 +48,10 @@ export default defineComponent({
     const article = ref<Article | null>(null)
     const isLoading = ref(true)
 
+    function getBearerToken(rawToken: string) {
+      return `Bearer ${rawToken.replace(/"/g, '')}`;
+    }
+
     const fetchArticleDetail = async () => {
       try {
         isLoading.value = true
@@ -55,7 +59,7 @@ export default defineComponent({
 
         const res = await axios.get(`https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/articles/${id}`, {
           headers: {
-            Authorization: 'Bearer ' + JSON.parse(token),
+            Authorization: getBearerToken(token),
           },
           params: {
             populate: '*'
@@ -94,7 +98,8 @@ export default defineComponent({
     return {
       article,
       isLoading,
-      formatDate
+      formatDate,
+      getBearerToken
     }
   }
 })

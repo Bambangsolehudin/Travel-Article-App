@@ -167,6 +167,10 @@
       const isLoading = ref(false)
 
 
+      function getBearerToken(rawToken: string) {
+        return `Bearer ${rawToken.replace(/"/g, '')}`;
+      }
+
       const commentSchema = z.object({
         newComment: z.string().min(1, 'Komentar tidak boleh kosong'),
         selectedArticle: z.number().min(1, 'Pilih salah satu artikel'),
@@ -210,7 +214,7 @@
         isLoading.value = true;
         try {
           const res = await axios.get(`https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/comments`, {
-            headers: { Authorization: 'Bearer ' + JSON.parse(token) },
+            headers: { Authorization: getBearerToken(token) },
             params: {
               'pagination[page]': page.value,
               'pagination[pageSize]': 10
@@ -241,7 +245,7 @@
               }
             },
             {
-              headers: { Authorization: 'Bearer ' + JSON.parse(token) }
+              headers: { Authorization: getBearerToken(token) }
             }
           )
 
@@ -283,7 +287,7 @@
               }
             },
             {
-              headers: { Authorization: 'Bearer ' + JSON.parse(token) }
+              headers: { Authorization: getBearerToken(token) }
             }
           )
 
@@ -305,7 +309,7 @@
           await axios.delete(
             `https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/comments/${id}`,
             {
-              headers: { Authorization: 'Bearer ' + JSON.parse(token) }
+              headers: { Authorization: getBearerToken(token) }
             }
           )
           showSnackbar('Comment Deleted!')
@@ -327,7 +331,7 @@
           isLoading.value = true
           try {
             const response = await axios.get('https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/articles', {
-              headers: { Authorization: 'Bearer ' + JSON.parse(token) },
+              headers: { Authorization: getBearerToken(token) },
               params: {
                 populate: '*',
                 
@@ -380,6 +384,7 @@
         editDialog,
         commentErrors,
         isLoading,
+        getBearerToken,
       }
     }
   })
