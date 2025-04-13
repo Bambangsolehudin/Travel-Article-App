@@ -69,7 +69,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn text @click="closeModal">Cancel</v-btn>
+          <v-btn @click="closeModal">Cancel</v-btn>
           <v-btn color="primary" @click="submitForm">{{ isEditing ? 'Update' : 'Create' }}</v-btn>
         </v-card-actions>
       </v-card>
@@ -127,7 +127,7 @@ const articleSchema = z.object({
   title: z.string().min(5, 'Title minimal 5 karakter'),
   description: z.string().min(10, 'Deskripsi minimal 10 karakter'),
   cover_image_url: z.string().url('URL tidak valid'),
-  category: z.number({ invalid_type_error: 'Category is required' }),
+  category: isEditing.value ? z.number({ invalid_type_error: 'Category is required' }) : z.number().optional(),
 })
 
 const formatDate = (date: string) => moment(date).format('DD MMMM YYYY, HH:mm')
@@ -147,7 +147,7 @@ const fetchArticles = async () => {
     })
     articles.value.push(...res.data.data)
   } catch (err) {
-    errorMessage.value = err.response?.data?.message || 'Gagal memuat artikel.'
+    errorMessage.value = err.response?.data?.error?.message || 'Gagal memuat artikel.'
     showError.value = true
   } finally {
     isLoading.value = false
@@ -157,7 +157,7 @@ const fetchArticles = async () => {
 const fetchCategories = async () => {
   try {
     const res = await axios.get('https://extra-brooke-yeremiadio-46b2183e.koyeb.app/api/categories', {
-      headers: { Authorization: 'Bearer ' + JSON.parse(token) }
+      headers: { Authorization: token }
     })
     categories.value = res.data.data
   } catch (err) {
@@ -178,7 +178,7 @@ const openModal = (mode: 'create' | 'edit', article?: Article) => {
 
   if (article) {
     selectedId.value = article.documentId
-    form.value = { ...article, category: undefined }
+    form.value = { title: article?.title, description: article?.description, cover_image_url: article?.cover_image_url }
   } else {
     selectedId.value = null
     form.value = { title: '', description: '', cover_image_url: '', category: null }
@@ -199,7 +199,8 @@ const submitForm = async () => {
     showSnackbar('Validasi gagal.', 'error')
     return
   }
-
+  console.log('hallo bandung');
+  
   const tokenData = 'Bearer ' + JSON.parse(token)
   const payload = { data: { ...form.value, category: isEditing.value ? Number(form.value.category) : form.value.category } }
 
@@ -220,7 +221,7 @@ const submitForm = async () => {
     fetchArticles()
     showSnackbar(isEditing.value ? 'Artikel Updated!' : 'Artikel Created!')
   } catch (err) {
-    errorMessage.value = err.response?.data?.message || 'Gagal menyimpan artikel.'
+    errorMessage.value = err.response?.data?.error?.message || 'Gagal menyimpan artikel.'
     showError.value = true
     showSnackbar(errorMessage.value, 'error')
   }

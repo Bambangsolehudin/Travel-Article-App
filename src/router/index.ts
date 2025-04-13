@@ -1,56 +1,81 @@
-import { createRouter, createWebHistory } from 'vue-router/auto'
-import { routes } from 'vue-router/auto-routes'
-import { useAuthStore } from '../store/auth' // pastikan path ini sesuai
+import { createRouter, createWebHistory } from 'vue-router'
+import Home from '../pages/index.vue'
+import Login from '../pages/Auth/Login.vue'
+import Register from '../pages/Auth/Register.vue'
+import Article from '../pages/Article/index.vue'
+import DetailArticle from '../pages/Article/[id].vue'
+import Category from '../pages/Category/index.vue'
+import Comment from '../pages/Comment/index.vue'
+
+
+
+
+
+
+import { useAuthStore } from '@/store/auth'
+
+const routes = [
+  {
+    path: '/',
+    name: 'Dashboard',
+    component: Home,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/Article',
+    name: 'Article',
+    component: Article,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/Article/:id',
+    name: 'DetailArticle',
+    component: DetailArticle,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/Category',
+    name: 'Category',
+    component: Category,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/Comment',
+    name: 'Comment',
+    component: Comment,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/Auth/Login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/Auth/Register',
+    name: 'Register',
+    component: Register
+  },
+  // tambahin route lain di sini
+]
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes,
+  history: createWebHistory(),
+  routes
 })
 
-// Middleware untuk autentikasi
+// Middleware untuk ngecek token
 router.beforeEach((to, from, next) => {
   const auth = useAuthStore()
 
-  console.log('route', to.name);
-  
+  // Debug log
+  console.log('Navigating to:', to.path)
+  console.log('Meta:', to.meta)
 
-  const isAuthenticated = !!auth.token // Cek jika ada token di store
-
-  // Jika route butuh login dan user belum login
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    return next('/Auth/Login') // Arahkan ke halaman login
-  }
-
-  // Jika route hanya boleh diakses oleh guest (login) dan user sudah login
-  if (to.meta.guestOnly && isAuthenticated) {
-    return next('/') // Arahkan ke halaman beranda jika sudah login
-  }
-
-  // Jika halaman login dan sudah ada token (user sudah login)
-  if (to.name === '/Auth/Login' && isAuthenticated) {
-    return next('/') // Redirect ke beranda jika sudah login
-  }
-
-  next() // Lanjutkan jika tidak ada masalah
-})
-
-// Error handling dinamis untuk vite
-router.onError((err, to) => {
-  if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
-    if (!localStorage.getItem('vuetify:dynamic-reload')) {
-      console.log('Reloading page to fix dynamic import error')
-      localStorage.setItem('vuetify:dynamic-reload', 'true')
-      location.assign(to.fullPath)
-    } else {
-      console.error('Dynamic import error, reloading page did not fix it', err)
-    }
+  if (to.meta.requiresAuth && !auth.token) {
+    next('/Auth/Login')
   } else {
-    console.error(err)
+    next()
   }
-})
-
-router.isReady().then(() => {
-  localStorage.removeItem('vuetify:dynamic-reload')
 })
 
 export default router

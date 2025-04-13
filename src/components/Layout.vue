@@ -45,8 +45,14 @@ import { defineComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 
+
+
 export default defineComponent({
+  meta: {
+    requiresAuth: true
+  },
   setup() {
+    
     const route = useRoute()
     const router = useRouter()
     const auth = useAuthStore()
@@ -60,6 +66,14 @@ export default defineComponent({
         router.push('/Auth/Login')
       }
     }
+
+
+    // const isAuthenticated = !!auth.token
+
+    // console.log('TESTING',isAuthenticated);
+    // if (!isAuthenticated) {
+    //   router.push('/auth/login')
+    // }
     return { route, routingData, handleClick }
   }
 })
