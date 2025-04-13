@@ -34,7 +34,7 @@ import { useRoute } from 'vue-router'
 import axios from 'axios'
 import moment from 'moment'
 import { useAuthStore } from '../../store/auth'
-import { Article } from '../../types/article'
+import type { Article } from '../../types/article'
 import Layout from '../../components/Layout.vue';
 
 
@@ -48,8 +48,8 @@ export default defineComponent({
     const article = ref<Article | null>(null)
     const isLoading = ref(true)
 
-    function getBearerToken(rawToken: string) {
-      return `Bearer ${rawToken.replace(/"/g, '')}`;
+    function getBearerToken(rawToken?: string | null): string {
+      return `Bearer ${(rawToken ?? '').replace(/"/g, '')}`;
     }
 
     const fetchArticleDetail = async () => {
@@ -77,7 +77,7 @@ export default defineComponent({
           cover_image_url: data.cover_image_url,
           createdAt: data.createdAt,
           documentId: data.documentId,
-          category: null,
+          category: data.category,
         }
 
         console.log('detail', article);

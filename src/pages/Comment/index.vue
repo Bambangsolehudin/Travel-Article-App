@@ -33,7 +33,6 @@
             outlined
             dense
             color="primary"
-            :loading="loadingArticles"
             @update:search-input="fetchArticles"
             :error-messages="commentErrors.selectedArticle"
           />
@@ -103,7 +102,7 @@
 
         <v-card-actions>
           <v-spacer />
-          <v-btn color="grey" text @click="cancelEdit">Batal</v-btn>
+          <v-btn color="grey" @click="cancelEdit">Batal</v-btn>
           <v-btn color="primary" @click="updateComment">Update</v-btn>
         </v-card-actions>
       </v-card>
@@ -154,7 +153,7 @@
       // article
       const articles = ref<Article[]>([])
       const selectedArticle = ref<number | null>(null)
-      const searchTitle = ref('')
+      const searchTitle = ref<string>('')
 
       //Notif
       const snackbar = ref(false)
@@ -166,9 +165,8 @@
 
       const isLoading = ref(false)
 
-
-      function getBearerToken(rawToken: string) {
-        return `Bearer ${rawToken.replace(/"/g, '')}`;
+      function getBearerToken(rawToken?: string | null): string {
+        return `Bearer ${(rawToken ?? '').replace(/"/g, '')}`;
       }
 
       const commentSchema = z.object({
@@ -222,10 +220,12 @@
   
           })
           comments.value.push(...res.data.data)
-        } catch (error) {
-          console.error('Gagal menambahkan komentar:', error)
-          showSnackbar(error?.response?.data?.error?.message || 'Something went wrong', 'error')
-        } finally {
+        } catch (error: unknown) {
+          console.error('Gagal menghapus komentar:', error)
+          if (axios.isAxiosError(error)) {
+            showSnackbar(error?.response?.data?.error?.message || 'Something went wrong', 'error')
+          }
+        }  finally {
           isLoading.value= false
         }
         // const id = route.params.id
@@ -253,9 +253,11 @@
           selectedArticle.value = null
           showSnackbar('Comment Created!')
           fetchComments()
-        } catch (error) {
-          console.error('Gagal menambahkan komentar:', error)
-          showSnackbar(error?.response?.data?.error?.message || 'Something went wrong', 'error')
+        } catch (error: unknown) {
+          console.error('Gagal menghapus komentar:', error)
+          if (axios.isAxiosError(error)) {
+            showSnackbar(error?.response?.data?.error?.message || 'Something went wrong', 'error')
+          }
         } finally {
           isLoading.value= false
         }
@@ -294,9 +296,11 @@
           cancelEdit()
           showSnackbar('Comment Updated!')
           fetchComments()
-        } catch (error) {
-          console.error('Gagal mengupdate komentar:', error)
-          showSnackbar(error?.response?.data?.error?.message || 'Something went wrong', 'error')
+        } catch (error: unknown) {
+          console.error('Gagal menghapus komentar:', error)
+          if (axios.isAxiosError(error)) {
+            showSnackbar(error?.response?.data?.error?.message || 'Something went wrong', 'error')
+          }
         } finally {
           isLoading.value = false;
         }
@@ -314,9 +318,11 @@
           )
           showSnackbar('Comment Deleted!')
           fetchComments()
-        } catch (error) {
+        } catch (error: unknown) {
           console.error('Gagal menghapus komentar:', error)
-          showSnackbar(error?.response?.data?.error?.message || 'Something went wrong', 'error')
+          if (axios.isAxiosError(error)) {
+            showSnackbar(error?.response?.data?.error?.message || 'Something went wrong', 'error')
+          }
         } finally {
           isLoading.value = false
         }
@@ -355,7 +361,7 @@
           } finally {
             isLoading.value = false
           }
-  }
+      }
   
       onMounted(() => {
         fetchComments();
@@ -385,6 +391,8 @@
         commentErrors,
         isLoading,
         getBearerToken,
+        fetchArticles,
+        searchTitle, 
       }
     }
   })

@@ -19,7 +19,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="cat in categories" :key="cat._id" class="border-b">
+          <tr v-for="(cat, i) in categories" :key="i" class="border-b">
             <td class="px-2">{{ cat.name }}</td>
             <td class="px-2">
               <v-btn size="md" class="py-1 px-1" icon color="info" @click="openModal(cat)">
@@ -50,7 +50,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn text @click.prevent="modal = false">Cancel</v-btn>
+          <v-btn @click.prevent="modal = false">Cancel</v-btn>
           <v-btn color="primary" @click.prevent="submitForm">Save</v-btn>
         </v-card-actions>
       </v-card>
@@ -74,7 +74,7 @@
   import axios from 'axios'
   import { z } from 'zod'
   import Layout from '../../components/Layout.vue'
-  import { Category } from '../../types/category'
+  import type { Category } from '../../types/category'
   
   const categorySchema = z.object({
     name: z.string().min(1, "Name is required"),

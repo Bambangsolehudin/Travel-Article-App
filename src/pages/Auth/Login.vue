@@ -137,13 +137,15 @@ export default defineComponent({
         })
         showSnackbar('Login successfully', 'success')
         router.push('/')
-      } catch (err) {
-        if (axios.isAxiosError(err) && err.response?.data?.error) {
-          errors.general = err.response.data.error.message || 'Login gagal.'
-        } else {
-          errors.general = 'Terjadi kesalahan saat login.'
+      } catch (err: unknown) {
+        let apiMessage = 'Terjadi kesalahan saat login.';
+
+        if (axios.isAxiosError(err)) {
+          apiMessage = err.response?.data?.error?.message || apiMessage;
         }
-        showSnackbar(err?.response?.data?.error?.message || 'Something went wrong', 'error')
+
+        errors.general = apiMessage;
+        showSnackbar(apiMessage, 'error');
       } finally {
         isLoading.value = false;
       }

@@ -82,7 +82,7 @@
         <v-card-text>{{ errorMessage }}</v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" text @click="showError = false">OK</v-btn>
+          <v-btn color="primary" @click="showError = false">OK</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -124,8 +124,8 @@ const snackbarText = ref('')
 const snackbarColor = ref('success')
 
 
-function getBearerToken(rawToken: string) {
-  return `Bearer ${rawToken.replace(/"/g, '')}`;
+function getBearerToken(rawToken?: string | null): string {
+  return `Bearer ${(rawToken ?? '').replace(/"/g, '')}`;
 }
 
 const articleSchema = z.object({
@@ -151,8 +151,10 @@ const fetchArticles = async () => {
       params: { 'pagination[page]': page.value, 'pagination[pageSize]': pageSize }
     })
     articles.value.push(...res.data.data)
-  } catch (err) {
-    errorMessage.value = err.response?.data?.error?.message || 'Gagal memuat artikel.'
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      errorMessage.value = err.response?.data?.error?.message || 'Gagal memuat artikel.'
+    }
     showError.value = true
   } finally {
     isLoading.value = false
@@ -165,8 +167,10 @@ const fetchCategories = async () => {
       headers: { Authorization: token }
     })
     categories.value = res.data.data
-  } catch (err) {
-    errorMessage.value = err.response?.data?.message || 'Gagal memuat kategori'
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      errorMessage.value = err.response?.data?.error?.message || 'Gagal memuat artikel.'
+    }
     showError.value = true
   }
 }
@@ -204,10 +208,11 @@ const submitForm = async () => {
     showSnackbar('Validasi gagal.', 'error')
     return
   }
+
   console.log('hallo bandung');
   
   const tokenData =  getBearerToken(token)
-  const payload = { data: { ...form.value, category: isEditing.value ? Number(form.value.category) : form.value.category } }
+  const payload = { data: { ...form.value, category: isEditing.value ? undefined : form.value.category } }
 
   try {
     if (isEditing.value && selectedId.value) {
@@ -225,8 +230,10 @@ const submitForm = async () => {
     page.value = 1
     fetchArticles()
     showSnackbar(isEditing.value ? 'Artikel Updated!' : 'Artikel Created!')
-  } catch (err) {
-    errorMessage.value = err.response?.data?.error?.message || 'Gagal menyimpan artikel.'
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      errorMessage.value = err.response?.data?.error?.message || 'Gagal menyimpan artikel.'
+    }
     showError.value = true
     showSnackbar(errorMessage.value, 'error')
   }
@@ -242,8 +249,10 @@ const deleteArticle = async (id: string) => {
     page.value = 1
     fetchArticles()
     showSnackbar('Artikel Deleted!')
-  } catch (err) {
-    errorMessage.value = err.response?.data?.message || 'Gagal menghapus artikel.'
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      errorMessage.value = err.response?.data?.message || 'Gagal menghapus artikel.'
+    }
     showError.value = true
     showSnackbar(errorMessage.value, 'error')
   }

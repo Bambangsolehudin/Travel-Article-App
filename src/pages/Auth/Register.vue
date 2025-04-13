@@ -96,7 +96,7 @@
   // import { useRouter } from 'vue-router'
   import { z } from 'zod'
   import axios from 'axios'
-  import { RegisterForm } from '../../types/registerForm'
+  import type { RegisterForm } from '../../types/registerForm'
   
   // const router = useRouter()
   const isLoading = ref(false)
@@ -158,10 +158,15 @@
         password: ''
       }
   
-    } catch (error) {
-      console.log(error);
-      showSnackbar(error?.response?.data?.error?.message || 'Something went wrong', 'error')
-    } finally {
+    } catch (err: unknown) {
+        let apiMessage = 'Terjadi kesalahan saat login.';
+
+        if (axios.isAxiosError(err)) {
+          apiMessage = err.response?.data?.error?.message || apiMessage;
+        }
+
+        showSnackbar(apiMessage, 'error');
+      } finally {
       isLoading.value = false
     }
   }
